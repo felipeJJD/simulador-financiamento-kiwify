@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+# Keep package-lock.json for Docker builds
 
 # testing
 /coverage
