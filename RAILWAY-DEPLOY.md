@@ -5,8 +5,9 @@
 A aplicação está **100% preparada** para deploy no Railway com todas as correções aplicadas.
 
 ## 📋 Checklist Completo
-- [x] Dockerfile otimizado e corrigido
-- [x] railway.json configurado
+- [x] Nixpacks configurado (mais confiável que Docker)
+- [x] railway.json otimizado
+- [x] nixpacks.toml configurado
 - [x] Dependências de build incluídas
 - [x] Variáveis de ambiente definidas
 - [x] Build local testado e funcionando
@@ -37,7 +38,7 @@ NODE_ENV=production
 ```
 
 ### 4. Deploy Automático
-- Railway detectará automaticamente o projeto Next.js
+- Railway usará Nixpacks para detectar e buildar o projeto Next.js
 - O build será executado automaticamente
 - Em poucos minutos, sua aplicação estará online!
 
@@ -70,6 +71,12 @@ Se houver problemas:
 - ✅ Painel administrativo
 - ✅ Banco de dados Supabase
 - ✅ Design responsivo
+
+## 🎯 Vantagens do Nixpacks
+- ✅ Detecção automática de Next.js
+- ✅ Build mais confiável que Docker
+- ✅ Otimizações automáticas
+- ✅ Menos problemas de dependências
 
 ---
 
