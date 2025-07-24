@@ -6,6 +6,9 @@ import { supabase } from '@/lib/supabase-client'
 import { SimulationData } from '@/types'
 import { formatCurrency } from '@/lib/calculations'
 
+// Força renderização dinâmica para evitar erro de build
+export const dynamic = 'force-dynamic'
+
 export default function AdminPanel() {
   const [simulations, setSimulations] = useState<SimulationData[]>([])
   const [loading, setLoading] = useState(true)

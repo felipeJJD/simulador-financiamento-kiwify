@@ -7,6 +7,9 @@ import { SimulationData } from '@/types'
 import { supabase, testSupabaseConnection } from '@/lib/supabase-client'
 import jsPDF from 'jspdf'
 
+// Força renderização dinâmica para evitar erro de build
+export const dynamic = 'force-dynamic'
+
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<'form' | 'result'>('form')
   const [simulationData, setSimulationData] = useState<SimulationData | null>(null)
