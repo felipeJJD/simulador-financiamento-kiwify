@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Users, FileText, Calendar, Download, Eye, Search } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase-client'
 import { SimulationData } from '@/types'
 import { formatCurrency } from '@/lib/calculations'
 

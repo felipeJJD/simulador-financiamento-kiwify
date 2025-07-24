@@ -1,15 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import SimulatorForm from '@/components/SimulatorForm'
 import SimulationResult from '@/components/SimulationResult'
 import { SimulationData } from '@/types'
-import { supabase } from '@/lib/supabase'
+import { supabase, testSupabaseConnection } from '@/lib/supabase-client'
 import jsPDF from 'jspdf'
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<'form' | 'result'>('form')
   const [simulationData, setSimulationData] = useState<SimulationData | null>(null)
+
+  // Testar conectividade na inicialização
+  React.useEffect(() => {
+    testSupabaseConnection()
+  }, [])
 
   const handleSimulationComplete = (data: SimulationData) => {
     setSimulationData(data)
@@ -95,16 +100,59 @@ export default function Home() {
     }
 
     try {
-      // Save to database
-      const { error } = await supabase
-        .from('simulations')
-        .insert([dataWithSignature])
+      console.log('Tentando salvar no Supabase...', {
+        url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+        hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      })
 
-      if (error) {
-        console.error('Erro ao salvar no banco:', error)
-        alert('Erro ao salvar no banco de dados. O PDF será gerado mesmo assim.')
-      } else {
-        console.log('Dados salvos com sucesso no banco!')
+      // Save to database with retry logic
+      let saveSuccess = false
+      let attempts = 0
+      const maxAttempts = 3
+
+      while (!saveSuccess && attempts < maxAttempts) {
+        attempts++
+        console.log(`Tentativa ${attempts} de ${maxAttempts}`)
+
+        try {
+          const { data, error } = await supabase
+            .from('simulations')
+            .insert([dataWithSignature])
+            .select()
+
+          if (error) {
+            console.error(`Erro na tentativa ${attempts}:`, {
+              code: error.code,
+              message: error.message,
+              details: error.details,
+              hint: error.hint
+            })
+            
+            if (attempts === maxAttempts) {
+              throw error
+            }
+            
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempts))
+          } else {
+            console.log('Dados salvos com sucesso:', data)
+            saveSuccess = true
+          }
+        } catch (networkError) {
+          console.error(`Erro de rede na tentativa ${attempts}:`, networkError)
+          
+          if (attempts === maxAttempts) {
+            throw networkError
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempts))
+        }
+      }
+
+      if (!saveSuccess) {
+        console.warn('Falha ao salvar no banco após todas as tentativas')
+        alert('Não foi possível salvar no banco de dados, mas o PDF será gerado.')
       }
 
       // Generate and download PDF
@@ -112,11 +160,23 @@ export default function Home() {
       pdf.save(`proposta-financiamento-${simulationData.name.replace(/\s+/g, '-').toLowerCase()}.pdf`)
 
       // Show success message
-      alert('Proposta aceita com sucesso! O PDF foi baixado automaticamente.')
+      const message = saveSuccess 
+        ? 'Proposta aceita com sucesso! Dados salvos e PDF baixado.'
+        : 'PDF gerado com sucesso! (Dados não foram salvos no banco)'
+      alert(message)
       
     } catch (error) {
-      console.error('Erro ao processar proposta:', error)
-      alert('Erro ao processar proposta. Tente novamente.')
+      console.error('Erro crítico ao processar proposta:', error)
+      
+      // Still generate PDF even if database fails
+      try {
+        const pdf = generatePDF(simulationData)
+        pdf.save(`proposta-financiamento-${simulationData.name.replace(/\s+/g, '-').toLowerCase()}.pdf`)
+        alert('Erro ao salvar dados, mas PDF foi gerado. Tente novamente mais tarde.')
+      } catch (pdfError) {
+        console.error('Erro ao gerar PDF:', pdfError)
+        alert('Erro ao processar proposta. Tente novamente.')
+      }
     }
   }
 
