@@ -136,8 +136,14 @@ O PDF gerado contém:
 
 ## 🚀 Deploy
 
-Para fazer deploy em produção:
+### Railway (Recomendado)
+1. Acesse [railway.app](https://railway.app)
+2. Conecte com GitHub
+3. Selecione este repositório
+4. Configure as variáveis de ambiente (veja DEPLOY.md)
+5. Deploy automático!
 
+### Manual
 1. Configure as variáveis de ambiente no seu provedor
 2. Execute o build: `npm run build`
 3. Inicie o servidor: `npm start`
