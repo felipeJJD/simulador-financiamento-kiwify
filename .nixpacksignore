@@ -1,0 +1,16 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next
+.git
+.gitignore
+README.md
+DEPLOY.md
+Dockerfile
+.dockerignore
+.env*.local
+.vercel
+*.tsbuildinfo
+coverage
+.nyc_output
