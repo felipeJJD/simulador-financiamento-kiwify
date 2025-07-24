@@ -79,9 +79,19 @@ export default function Home() {
     if (!simulationData) return
 
     const dataWithSignature = {
-      ...simulationData,
+      name: simulationData.name,
+      email: simulationData.email,
+      phone: simulationData.phone,
+      cpf: simulationData.cpf,
+      property_value: simulationData.propertyValue,
+      down_payment: simulationData.downPayment,
+      loan_amount: simulationData.loanAmount,
+      monthly_payment: simulationData.monthlyPayment,
+      total_amount: simulationData.totalAmount,
+      interest_rate: simulationData.interestRate,
+      loan_term: simulationData.loanTerm,
       signature,
-      createdAt: new Date().toISOString()
+      created_at: new Date().toISOString()
     }
 
     try {
@@ -92,12 +102,14 @@ export default function Home() {
 
       if (error) {
         console.error('Erro ao salvar no banco:', error)
-        // Continue with PDF generation even if database save fails
+        alert('Erro ao salvar no banco de dados. O PDF será gerado mesmo assim.')
+      } else {
+        console.log('Dados salvos com sucesso no banco!')
       }
 
       // Generate and download PDF
-      const pdf = generatePDF(dataWithSignature)
-      pdf.save(`proposta-financiamento-${dataWithSignature.name.replace(/\s+/g, '-').toLowerCase()}.pdf`)
+      const pdf = generatePDF(simulationData)
+      pdf.save(`proposta-financiamento-${simulationData.name.replace(/\s+/g, '-').toLowerCase()}.pdf`)
 
       // Show success message
       alert('Proposta aceita com sucesso! O PDF foi baixado automaticamente.')
